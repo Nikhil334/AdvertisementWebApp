@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.forgetpasscontroller = exports.logoutcontrol = exports.addressaddController = exports.loginController = exports.signupController = void 0;
+exports.resetpasscontroller = exports.forgetpasscontroller = exports.logoutcontrol = exports.addressaddController = exports.loginController = exports.signupController = void 0;
 const user_service_1 = require("../services/user.service");
 const signupController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -52,17 +52,30 @@ const loginController = (req, res) => __awaiter(void 0, void 0, void 0, function
 exports.loginController = loginController;
 const forgetpasscontroller = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield (0, user_service_1.forgetpassservice)(req);
-        if (!result) {
-            res.status(400).send("invalid email");
-        }
-        res.status(201).send(`password changed successfully : ${result}`);
+        yield (0, user_service_1.forgetpassservice)(req, res);
+        // if (!result) {
+        // res.status(400).send("invalid email");
+        // }
+        res.status(201).send(`otp sent successfully`);
     }
     catch (error) {
         res.status(500).send("Internal Server error");
     }
 });
 exports.forgetpasscontroller = forgetpasscontroller;
+const resetpasscontroller = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, user_service_1.reset_password)(req, res);
+        // if (!result) {
+        // res.status(400).send("invalid email");
+        // }
+        res.status(201).send(`password changed successfully`);
+    }
+    catch (error) {
+        res.status(500).send("Internal Server error");
+    }
+});
+exports.resetpasscontroller = resetpasscontroller;
 const logoutcontrol = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const result = yield (0, user_service_1.logoutservice)(req);

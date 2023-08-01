@@ -35,11 +35,11 @@ const User = sqlize.define('user', {
     },
     gender: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     dob: {
         type: Sequelize.DATEONLY,
-        allowNull: false
+        allowNull: true
     },
     status: {
         type: Sequelize.BOOLEAN,
@@ -61,7 +61,7 @@ const User = sqlize.define('user', {
 });
 
 (async function () {
-    await User.sync();
+    await User.sync({alter: true});
 })();
 
 

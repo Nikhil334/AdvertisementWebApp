@@ -5,7 +5,7 @@ const registerValidation = Joi.object({
     username: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
-    mobNumber:Joi.number().min(9999999999).max(999999999999),
+    mobNumber:Joi.number().min(1000000000).max(999999999999),
     firstName:Joi.string().min(3).required(),
     lastName:Joi.string().min(3).required(),
   });

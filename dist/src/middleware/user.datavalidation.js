@@ -9,7 +9,7 @@ const registerValidation = joi_1.default.object({
     username: joi_1.default.string().required(),
     email: joi_1.default.string().email().required(),
     password: joi_1.default.string().min(6).required(),
-    mobNumber: joi_1.default.number().min(9999999999).max(999999999999),
+    mobNumber: joi_1.default.number().min(1000000000).max(999999999999),
     firstName: joi_1.default.string().min(3).required(),
     lastName: joi_1.default.string().min(3).required(),
 });

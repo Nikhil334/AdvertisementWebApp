@@ -12,7 +12,8 @@ userRoute.route('/').get();
 userRoute.route('/signup').post(user_datavalidation_1.checkRegisterData, user_controller_1.signupController);
 userRoute.route('/login').post(user_datavalidation_1.checkLogindata, user_controller_1.loginController);
 userRoute.route('/logout').post(auth_1.authenticateToken, user_controller_1.logoutcontrol);
-userRoute.route('/forget').patch(user_controller_1.forgetpasscontroller);
+userRoute.route('/forget').post(user_controller_1.forgetpasscontroller);
 userRoute.route('/addAddress').post(auth_1.authenticateToken, user_controller_1.addressaddController);
+userRoute.route("/resetpass").post(user_controller_1.resetpasscontroller);
 exports.default = userRoute;
 //# sourceMappingURL=user.routes.js.map

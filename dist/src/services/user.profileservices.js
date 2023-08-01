@@ -33,11 +33,6 @@ const setprofilepic = (req) => __awaiter(void 0, void 0, void 0, function* () {
         console.log(bufferData);
         const result = user_schema_1.User.update({ profilePic: bufferData }, { where: { email: req.user.email } });
         return true;
-        // return true;
-        // const myModelInstance = await User.findOne({ where: {email: req.user.email} });
-        // const blobData = myModelInstance.profilePic;
-        // console.log(blobData);
-        // fs.writeFileSync('../myFile.png', blobData);
     }
     catch (_b) {
         return false;

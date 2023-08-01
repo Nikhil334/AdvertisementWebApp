@@ -3,6 +3,8 @@ import { Session } from "../models/user.sessionschema";
 import { Address } from "../models/user.addressschema";
 import { maintain_session_control } from "../controllers/user.sessionController";
 import { distroySession } from "../middleware/user.sessionredis";
+import { save_otp,get_otp } from "../middleware/user.sessionredis";
+import nodemailer from 'nodemailer';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
@@ -20,8 +22,6 @@ const signupservice = async (req: Request) => {
             username: userData.username,
             email: userData.email,
             password: userData.password,
-            status: userData.status,
-            profile: userData.profile,
             mobNumber: userData.mobNumber,
             gender: userData.gender,
             dob: userData.dob,
@@ -90,23 +90,93 @@ const loginServices = async (req: Request, res: Response) => {
     }
 }
 
-const forgetpassservice = async (req: Request) => {
-    try{
-        const isUser = User.findOne({where:{email:req.body.email}});
-        console.log(isUser);
-        if(isUser){
-            const encryptPass = await bcrypt.hash(req.body.password, SALT);
-            await User.update({password:encryptPass},{ where: {email:req.body.email} });
-            return true;
+// const forgetpassservice = async (req: Request) => {
+//     try{
+//         const isUser = User.findOne({where:{email:req.body.email}});
+//         console.log(isUser);
+//         if(isUser){
+//             const encryptPass = await bcrypt.hash(req.body.password, SALT);
+//             await User.update({password:encryptPass},{ where: {email:req.body.email} });
+//             return true;
+//         }
+//         else{
+//             return false;
+//         }
+//     }
+//     catch{
+//         return false;
+//     }
+// }
+
+const forgetpassservice = async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            res.status(400).json({ message: 'Email not found' });
         }
-        else{
-            return false;
-        }
+
+        let OTP = Math.floor(1000 + Math.random() * 9000);
+        save_otp(email, OTP);
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_ADDRESS,
+                pass: process.env.EMAIL_PASSWORD,
+            },
+        });
+        const mailOptions = {
+            from: process.env.EMAIL_ADDRESS,
+            to: email,
+            subject: 'Password Reset Request',
+            text: `You are receiving this email because you have requested a password reset for your account.\n\n RESET PASSWORD OTP: ${OTP}\n\n If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+                res.status(500).json({ message: 'Error sending email' });
+            } else {
+                console.log('Email sent: ' + info.response);
+                res.status(200).json({ message: 'Password reset link sent to email' });
+            }
+        });
     }
-    catch{
-        return false;
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Server error' });
     }
 }
+
+
+const reset_password = async (req: any, res: any)=>{
+    try {
+        const { email, otp, newPassword } = req.body;
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            res.status(400).json({ message: 'Email not found' });
+        }
+        const userOTP = await get_otp(email);
+        console.log(userOTP);
+        if (!userOTP ||  userOTP !== otp) {
+            return res.status(401).json({ error: 'Invalid OTP' });
+        }
+        const encryptPass = await bcrypt.hash(newPassword,SALT);
+        user.password = encryptPass;
+        console.log(user.password);
+        await user.save();
+        return res.status(200).json({ message: 'Password reset successful' });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
 
 const logoutservice = async (req: Request) => {
     try {
@@ -131,4 +201,8 @@ const logoutservice = async (req: Request) => {
     }
 }
 
-export { signupservice, addAddress, loginServices, logoutservice,forgetpassservice };
+const deleteUserById = async (id: string) => {
+    return await User.destroy({ where: { id } });
+  };
+  
+export { signupservice, addAddress, loginServices, logoutservice, forgetpassservice,reset_password,deleteUserById};

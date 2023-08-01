@@ -49,11 +49,11 @@ const User = conn_1.sqlize.define('user', {
     },
     gender: {
         type: sequelize_1.default.STRING,
-        allowNull: false
+        allowNull: true
     },
     dob: {
         type: sequelize_1.default.DATEONLY,
-        allowNull: false
+        allowNull: true
     },
     status: {
         type: sequelize_1.default.BOOLEAN,
@@ -76,7 +76,7 @@ const User = conn_1.sqlize.define('user', {
 exports.User = User;
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
-        yield User.sync();
+        yield User.sync({ alter: true });
     });
 })();
 //# sourceMappingURL=user.schema.js.map

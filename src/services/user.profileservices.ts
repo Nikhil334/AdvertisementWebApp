@@ -21,17 +21,12 @@ const setprofilepic = async (req: Request) => {
         //console.log(req.file.buffer);
         const file = req.file;
         const fileData = fs.readFileSync(file.path);
+        console.log(req.file.path);
         const bufferData = Buffer.from(fileData);
         console.log(bufferData);
         const result = User.update({ profilePic: bufferData }, { where: { email: req.user.email } });
-        
         return true;
-        // return true;
 
-        // const myModelInstance = await User.findOne({ where: {email: req.user.email} });
-        // const blobData = myModelInstance.profilePic;
-        // console.log(blobData);
-        // fs.writeFileSync('../myFile.png', blobData);
     }
     catch {
         return false;

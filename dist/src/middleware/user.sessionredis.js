@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.distroySession = exports.maintain_session_redis = void 0;
+exports.get_otp = exports.save_otp = exports.distroySession = exports.maintain_session_redis = void 0;
 const redis_1 = require("redis");
 const client = (0, redis_1.createClient)();
 client.connect();
@@ -43,4 +43,28 @@ const distroySession = (user) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.distroySession = distroySession;
+const save_otp = (email, OTP) => __awaiter(void 0, void 0, void 0, function* () {
+    client.on('error', err => console.log('Redis client error', err));
+    try {
+        yield client.setEx(email, 300, JSON.stringify({
+            otp: OTP
+        }));
+        console.log("otp stored successfully");
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+exports.save_otp = save_otp;
+const get_otp = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    if (yield client.exists(email)) {
+        const otp_details = yield client.get(email);
+        const userOTP = JSON.parse(otp_details);
+        return userOTP.otp;
+    }
+    else {
+        return false;
+    }
+});
+exports.get_otp = get_otp;
 //# sourceMappingURL=user.sessionredis.js.map

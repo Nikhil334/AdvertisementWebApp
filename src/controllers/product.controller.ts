@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { addProduct, addimages, deleteproduct } from "../services/product.service";
+import { Product } from "../models/products.schema";
+import { addProduct, addimages, deleteproduct, getProductDetails, getbidding, updateproduct } from "../services/product.service";
 
 const addProductController = async (req:Request,res:Response)=>{
     try {
@@ -39,4 +40,58 @@ const deleteproductController = async (req:Request,res:Response)=>{
         res.status(500).json({ message: 'Internal server error' });
     }
 }
-export {addProductController,setproductimagesController,deleteproductController};
+
+const updateProductController = async (req:Request, res:Response) => {
+    try {
+      const product = await Product.findByPk(req.params.pid);
+      if (!product) {
+        res.status(404).json({ message: 'Product not found' });
+      } else {
+        const result = await updateproduct(req);
+        if(!result){
+        res.status(400).json({msg:"Something went wrong!"});
+        }
+        res.status(200).json(product);
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+const getProductDetailsController = async (req:Request, res:Response) => {
+    try {
+      const product = await Product.findByPk(req.params.pid);
+      if (!product) {
+        res.status(404).json({ message: 'Product not found' });
+      } else {
+        const result = await getProductDetails(req);
+        if(!result){
+            res.status(400).json({msg:"Something went wrong"});
+        }
+        res.status(200).json(result);
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };  
+
+const getbiddingController = async (req, res) => {
+    try {
+      const product = await Product.findByPk(req.params.pid);
+      if (!product) {
+        res.status(404).json({ message: 'Product not found' });
+      } else {
+        const result= await getbidding(req,res);
+        // if(!result){
+        //     res.status(400).json({msg:"Something went Wrong"});
+        // }
+        res.status(200).json(result);
+        } 
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };  
+export {addProductController,setproductimagesController,deleteproductController,updateProductController,getProductDetailsController,getbiddingController};

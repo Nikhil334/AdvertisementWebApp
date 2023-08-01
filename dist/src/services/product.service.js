@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteproduct = exports.addimages = exports.addProduct = void 0;
+exports.getbidding = exports.getProductDetails = exports.updateproduct = exports.deleteproduct = exports.addimages = exports.addProduct = void 0;
 const products_schema_1 = require("../models/products.schema");
 const { Op } = require("sequelize");
 const fs_1 = __importDefault(require("fs"));
@@ -69,4 +69,54 @@ const deleteproduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.deleteproduct = deleteproduct;
+const updateproduct = (req) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const result = yield products_schema_1.Product.update(req.body, { where: { [Op.and]: { seller_id: req.user.user_id, id: req.params.pid } } });
+        if (!result) {
+            return false;
+        }
+        return result;
+    }
+    catch (error) {
+        console.error(error);
+        return false;
+    }
+});
+exports.updateproduct = updateproduct;
+const getProductDetails = (req) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const product = yield products_schema_1.Product.findByPk(req.params.pid, {
+            attributes: { exclude: ['id', 'Bidderid', 'createdAt', 'updatedAt'] }
+        });
+        if (!product) {
+            return false;
+        }
+        return product;
+    }
+    catch (error) {
+        console.error(error);
+        return false;
+    }
+});
+exports.getProductDetails = getProductDetails;
+const getbidding = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const pid = req.params.pid;
+        const currentBid = req.body.currentBid;
+        let product = yield products_schema_1.Product.findOne({ where: { id: pid } });
+        console.log(product);
+        if (product.heigher_bidding_price < currentBid) {
+            product = products_schema_1.Product.update({ heigher_bidding_price: currentBid, Bidderid: req.user.user_id }, { where: { id: pid } });
+        }
+        else {
+            res.status(402).json({ message: "New Bid price is higher than the current bidding price" });
+        }
+        res.status(201).json("bid updated");
+    }
+    catch (error) {
+        res.status(500).json({ message: "Server Error" });
+        console.log(error);
+    }
+});
+exports.getbidding = getbidding;
 //# sourceMappingURL=product.service.js.map
